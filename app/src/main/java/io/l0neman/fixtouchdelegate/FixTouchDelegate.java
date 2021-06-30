@@ -6,13 +6,15 @@ import android.view.TouchDelegate;
 import android.view.View;
 import android.view.ViewConfiguration;
 
+/**
+ * @author l0neman
+ */
 public class FixTouchDelegate extends TouchDelegate {
-    private static final String TAG = FixTouchDelegate.class.getSimpleName();
-    private View mDelegateView;
-    private Rect mBounds;
-    private Rect mSlopBounds;
+    private final View mDelegateView;
+    private final Rect mBounds;
+    private final Rect mSlopBounds;
     private boolean mDelegateTargeted;
-    private int mSlop;
+    private final int mSlop;
 
     public FixTouchDelegate(Rect bounds, View delegateView) {
         super(bounds, delegateView);
@@ -23,8 +25,6 @@ public class FixTouchDelegate extends TouchDelegate {
         mSlopBounds.inset(-mSlop, -mSlop);
         mDelegateView = delegateView;
     }
-
-    private float mActivePointerId;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -38,9 +38,6 @@ public class FixTouchDelegate extends TouchDelegate {
             case MotionEvent.ACTION_DOWN:
                 mDelegateTargeted = mBounds.contains(x, y);
                 sendToDelegate = mDelegateTargeted;
-
-                final int pointerIndex = event.getActionIndex();
-                mActivePointerId = event.getPointerId(pointerIndex);
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_POINTER_UP:
@@ -48,8 +45,7 @@ public class FixTouchDelegate extends TouchDelegate {
             case MotionEvent.ACTION_MOVE:
                 sendToDelegate = mDelegateTargeted;
                 if (sendToDelegate) {
-                    Rect slopBounds = mSlopBounds;
-                    if (!slopBounds.contains(x, y)) {
+                    if (!mSlopBounds.contains(x, y)) {
                         hit = false;
                     }
                 }
